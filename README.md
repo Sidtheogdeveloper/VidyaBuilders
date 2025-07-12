@@ -219,5 +219,3 @@ For technical support or questions:
 - Phone: +91 98765 43210
 
 ---
-
-**Built with ❤️ for Vidya Builders - Chennai's Premier Construction Company**
