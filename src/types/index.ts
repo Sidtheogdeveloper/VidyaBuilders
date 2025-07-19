@@ -46,11 +46,18 @@ export interface User {
 
 export interface Appointment {
   id: string;
+  userId: string;
   date: string;
   time: string;
   type: 'video' | 'office';
   status: 'scheduled' | 'completed' | 'cancelled';
   projectId?: string;
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  notes?: string;
+  createdAt?: any;
+  updatedAt?: any;
 }
 
 export interface ContactForm {

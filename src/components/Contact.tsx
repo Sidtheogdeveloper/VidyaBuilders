@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { Phone, Mail, MapPin, Clock, Calendar, Video, Building } from 'lucide-react';
-import { ContactForm } from '../types';
+import { ContactForm, Appointment } from '../types';
+import { contactService } from '../services/contactService';
+import { appointmentService } from '../services/appointmentService';
+import { useAuth } from '../hooks/useAuth';
 
 interface ContactProps {
   onNavigate: (page: string) => void;
 }
 
 const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState<ContactForm>({
     name: '',
     email: '',
@@ -18,6 +22,8 @@ const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
   const [appointmentType, setAppointmentType] = useState<'video' | 'office'>('office');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -29,22 +35,65 @@ const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
-    alert('Thank you for your inquiry! We will get back to you soon.');
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      message: '',
-      projectInterest: ''
-    });
+    setIsSubmitting(true);
+    setSubmitMessage('');
+    
+    contactService.submitContactForm(formData)
+      .then(() => {
+        setSubmitMessage('Thank you for your inquiry! We will get back to you soon.');
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          message: '',
+          projectInterest: ''
+        });
+      })
+      .catch((error) => {
+        console.error('Error submitting form:', error);
+        setSubmitMessage('Sorry, there was an error submitting your form. Please try again.');
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
   };
 
   const handleAppointmentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Appointment booked:', { type: appointmentType, date: selectedDate, time: selectedTime });
-    alert(`Appointment scheduled for ${selectedDate} at ${selectedTime}. We'll send you a confirmation shortly.`);
+    
+    if (!user) {
+      alert('Please login to book an appointment.');
+      onNavigate('portal');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setSubmitMessage('');
+    
+    const appointmentData: Omit<Appointment, 'id'> = {
+      userId: user.id,
+      date: selectedDate,
+      time: selectedTime,
+      type: appointmentType,
+      status: 'scheduled',
+      customerName: user.name,
+      customerEmail: user.email,
+      customerPhone: user.phone
+    };
+    
+    appointmentService.createAppointment(appointmentData)
+      .then(() => {
+        setSubmitMessage(`Appointment scheduled for ${selectedDate} at ${selectedTime}. We'll send you a confirmation shortly.`);
+        setSelectedDate('');
+        setSelectedTime('');
+      })
+      .catch((error) => {
+        console.error('Error booking appointment:', error);
+        setSubmitMessage('Sorry, there was an error booking your appointment. Please try again.');
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
   };
 
   const timeSlots = [
@@ -142,6 +191,16 @@ const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
             <div className="bg-white rounded-xl p-8 shadow-lg">
               <h3 className="text-2xl font-bold text-gray-900 mb-6">General Inquiry</h3>
               
+              {submitMessage && (
+                <div className={`mb-4 p-3 rounded ${
+                  submitMessage.includes('error') || submitMessage.includes('Sorry') 
+                    ? 'bg-red-100 border border-red-400 text-red-700'
+                    : 'bg-green-100 border border-green-400 text-green-700'
+                }`}>
+                  {submitMessage}
+                </div>
+              )}
+              
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
@@ -224,9 +283,10 @@ const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
 
                 <button
                   type="submit"
-                  className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 px-6 rounded-lg font-semibold transition-all"
+                  disabled={isSubmitting}
+                  className="w-full bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white py-3 px-6 rounded-lg font-semibold transition-all"
                 >
-                  Send Message
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
             </div>
@@ -307,15 +367,30 @@ const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
 
                 <button
                   type="submit"
+                  disabled={isSubmitting || !user}
                   className={`w-full py-3 px-6 rounded-lg font-semibold transition-all ${
                     appointmentType === 'video'
-                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                      : 'bg-amber-600 hover:bg-amber-700 text-white'
+                      ? 'bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white'
+                      : 'bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white'
                   }`}
                 >
                   <Calendar size={20} className="inline mr-2" />
-                  Schedule {appointmentType === 'video' ? 'Video Call' : 'Office Visit'}
+                  {isSubmitting 
+                    ? 'Scheduling...' 
+                    : `Schedule ${appointmentType === 'video' ? 'Video Call' : 'Office Visit'}`
+                  }
                 </button>
+                
+                {!user && (
+                  <p className="text-sm text-gray-600 text-center">
+                    Please <button 
+                      onClick={() => onNavigate('portal')} 
+                      className="text-amber-600 hover:text-amber-700 font-medium"
+                    >
+                      login
+                    </button> to book an appointment
+                  </p>
+                )}
               </form>
             </div>
           </div>

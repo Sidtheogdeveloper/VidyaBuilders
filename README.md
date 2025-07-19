@@ -32,6 +32,9 @@ This website showcases Vidya Builders' portfolio of residential projects across 
 ## 🛠️ Tech Stack
 
 - **Frontend**: React 18 + TypeScript
+- **Database**: Firebase Firestore
+- **Authentication**: Firebase Auth
+- **Storage**: Firebase Storage
 - **Styling**: Tailwind CSS
 - **Icons**: Lucide React
 - **Build Tool**: Vite
@@ -62,7 +65,13 @@ This website showcases Vidya Builders' portfolio of residential projects across 
    npm run dev
    ```
 
-4. **Open in browser**
+4. **Configure Firebase**
+   - Create a Firebase project at https://console.firebase.google.com
+   - Enable Authentication (Email/Password)
+   - Create a Firestore database
+   - Copy your Firebase config to `.env` file (see `.env.example`)
+
+5. **Open in browser**
    Navigate to `http://localhost:5173`
 
 ### Available Scripts
@@ -71,6 +80,50 @@ This website showcases Vidya Builders' portfolio of residential projects across 
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
+
+### Firebase Setup
+
+1. **Create Firebase Project**
+   - Go to [Firebase Console](https://console.firebase.google.com)
+   - Create a new project
+   - Enable Authentication with Email/Password provider
+   - Create a Firestore database in production mode
+
+2. **Configure Environment Variables**
+   ```bash
+   cp .env.example .env
+   ```
+   Fill in your Firebase configuration values
+
+3. **Firestore Security Rules**
+   ```javascript
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       // Users can read/write their own data
+       match /users/{userId} {
+         allow read, write: if request.auth != null && request.auth.uid == userId;
+       }
+       
+       // Users can read/write their own appointments
+       match /appointments/{appointmentId} {
+         allow read, write: if request.auth != null && 
+           (request.auth.uid == resource.data.userId || 
+            request.auth.uid == request.resource.data.userId);
+       }
+       
+       // Anyone can submit contact forms
+       match /contacts/{contactId} {
+         allow create: if true;
+       }
+       
+       // Anyone can subscribe to newsletter
+       match /newsletter_subscribers/{subscriberId} {
+         allow create: if true;
+       }
+     }
+   }
+   ```
 
 ## 📁 Project Structure
 
@@ -86,14 +139,43 @@ src/
 │   ├── ProjectDetail.tsx # Individual project pages
 │   ├── ProjectsOverview.tsx
 │   └── UserPortal.tsx   # User authentication & dashboard
+├── config/
+│   └── firebase.ts      # Firebase configuration
 ├── data/
 │   └── projects.ts      # Project data and mock content
+├── hooks/
+│   ├── useAuth.ts       # Authentication hook
+│   └── useAppointments.ts # Appointments management hook
+├── services/
+│   ├── authService.ts   # Firebase authentication service
+│   ├── appointmentService.ts # Appointment management
+│   └── contactService.ts # Contact form handling
 ├── types/
 │   └── index.ts         # TypeScript type definitions
 ├── App.tsx              # Main app component
 ├── main.tsx            # App entry point
 └── index.css           # Global styles
 ```
+
+## 🔥 Firebase Integration
+
+### Features
+- **User Authentication**: Email/password signup and login
+- **User Profiles**: Store user preferences and contact information
+- **Appointment Management**: Real-time appointment booking and tracking
+- **Contact Forms**: Store inquiries and newsletter subscriptions
+- **Real-time Updates**: Live synchronization across devices
+
+### Data Structure
+- `users/` - User profiles and preferences
+- `appointments/` - Appointment bookings and schedules
+- `contacts/` - Contact form submissions
+- `newsletter_subscribers/` - Email subscription list
+
+### Security
+- Firestore security rules ensure users can only access their own data
+- Authentication required for appointment booking and user portal
+- Public access for contact forms and newsletter subscriptions
 
 ## 🎨 Design System
 

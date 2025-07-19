@@ -1,82 +1,90 @@
 import React, { useState } from 'react';
 import { User, Mail, Lock, Calendar, Bell, Settings, Eye, EyeOff, Phone, MapPin } from 'lucide-react';
-import { User as UserType, Appointment } from '../types';
+import { useAuth } from '../hooks/useAuth';
+import { useAppointments } from '../hooks/useAppointments';
 
 interface UserPortalProps {
   onNavigate: (page: string) => void;
 }
 
 const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
+  const { user, loading, error, signUp, signIn, signOut, updatePreferences } = useAuth();
+  const { appointments, createAppointment, cancelAppointment } = useAppointments(user?.id);
+  
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [signupData, setSignupData] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
-
-  // Mock user data
-  const [user, setUser] = useState<UserType>({
-    id: '1',
-    name: 'John Doe',
-    email: 'john.doe@email.com',
-    phone: '+91 98765 43210',
-    preferences: {
-      newsletter: true,
-      promotions: false,
-      projectUpdates: true
-    },
-    appointments: [
-      {
-        id: '1',
-        date: '2024-01-25',
-        time: '10:00 AM',
-        type: 'office',
-        status: 'scheduled',
-        projectId: '1'
-      },
-      {
-        id: '2',
-        date: '2024-01-15',
-        time: '2:00 PM',
-        type: 'video',
-        status: 'completed',
-        projectId: '2'
-      }
-    ]
-  });
+  const [authLoading, setAuthLoading] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock login logic
-    if (loginData.email && loginData.password) {
-      setIsLoggedIn(true);
-    }
+    setAuthLoading(true);
+    signIn(loginData.email, loginData.password)
+      .then(() => {
+        setLoginData({ email: '', password: '' });
+      })
+      .catch((err) => {
+        console.error('Login failed:', err);
+      })
+      .finally(() => {
+        setAuthLoading(false);
+      });
   };
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock signup logic
-    if (signupData.password === signupData.confirmPassword) {
-      setIsLoggedIn(true);
-      setUser(prev => ({
-        ...prev,
-        name: signupData.name,
-        email: signupData.email,
-        phone: signupData.phone
-      }));
+    if (signupData.password !== signupData.confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+    
+    setAuthLoading(true);
+    signUp(signupData.email, signupData.password, signupData.name, signupData.phone)
+      .then(() => {
+        setSignupData({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+      })
+      .catch((err) => {
+        console.error('Signup failed:', err);
+      })
+      .finally(() => {
+        setAuthLoading(false);
+      });
+  };
+
+  const handlePreferenceChange = (key: keyof typeof user.preferences) => {
+    if (!user) return;
+    
+    const newPreferences = {
+      ...user.preferences,
+      [key]: !user.preferences[key]
+    };
+    
+    updatePreferences(newPreferences).catch((err) => {
+      console.error('Failed to update preferences:', err);
+    });
+  };
+
+  const handleCancelAppointment = (appointmentId: string) => {
+    if (window.confirm('Are you sure you want to cancel this appointment?')) {
+      cancelAppointment(appointmentId).catch((err) => {
+        console.error('Failed to cancel appointment:', err);
+      });
     }
   };
 
-  const handlePreferenceChange = (key: keyof UserType['preferences']) => {
-    setUser(prev => ({
-      ...prev,
-      preferences: {
-        ...prev.preferences,
-        [key]: !prev.preferences[key]
-      }
-    }));
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
   };
 
-  if (!isLoggedIn) {
+  if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12">
         <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
@@ -88,6 +96,12 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
               {isLogin ? 'Sign in to your account' : 'Create your account today'}
             </p>
           </div>
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              {error}
+            </div>
+          )}
 
           {isLogin ? (
             <form onSubmit={handleLogin} className="space-y-6">
@@ -134,9 +148,10 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
 
               <button
                 type="submit"
-                className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 px-6 rounded-lg font-semibold transition-all"
+                disabled={authLoading}
+                className="w-full bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white py-3 px-6 rounded-lg font-semibold transition-all"
               >
-                Sign In
+                {authLoading ? 'Signing In...' : 'Sign In'}
               </button>
             </form>
           ) : (
@@ -235,9 +250,10 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
 
               <button
                 type="submit"
-                className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 px-6 rounded-lg font-semibold transition-all"
+                disabled={authLoading}
+                className="w-full bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white py-3 px-6 rounded-lg font-semibold transition-all"
               >
-                Create Account
+                {authLoading ? 'Creating Account...' : 'Create Account'}
               </button>
             </form>
           )}
@@ -269,7 +285,7 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
               <p className="text-gray-600">Manage your account and track your journey with Vidya Builders</p>
             </div>
             <button
-              onClick={() => setIsLoggedIn(false)}
+              onClick={signOut}
               className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors"
             >
               Sign Out
@@ -400,6 +416,7 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
               
               <div className="space-y-4">
                 {user.appointments.map((appointment) => (
+                {appointments.map((appointment) => (
                   <div key={appointment.id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center">
@@ -428,7 +445,10 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
                         <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
                           Reschedule
                         </button>
-                        <button className="text-red-600 hover:text-red-700 text-sm font-medium">
+                        <button 
+                          onClick={() => handleCancelAppointment(appointment.id)}
+                          className="text-red-600 hover:text-red-700 text-sm font-medium"
+                        >
                           Cancel
                         </button>
                       </div>

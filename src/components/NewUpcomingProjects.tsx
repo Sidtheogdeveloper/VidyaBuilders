@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, MapPin, Calendar, Percent, Clock, Gift, Bell } from 'lucide-react';
 import { projects } from '../data/projects';
+import { contactService } from '../services/contactService';
 
 interface NewUpcomingProjectsProps {
   onNavigate: (page: string, projectId?: string) => void;
@@ -9,6 +10,8 @@ interface NewUpcomingProjectsProps {
 const NewUpcomingProjects: React.FC<NewUpcomingProjectsProps> = ({ onNavigate }) => {
   const [selectedType, setSelectedType] = useState<'all' | 'ongoing' | 'upcoming'>('all');
   const [emailNotification, setEmailNotification] = useState('');
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [subscribeMessage, setSubscribeMessage] = useState('');
   
   const newAndUpcomingProjects = projects.filter(project => 
     project.type === 'ongoing' || project.type === 'upcoming'
@@ -20,10 +23,21 @@ const NewUpcomingProjects: React.FC<NewUpcomingProjectsProps> = ({ onNavigate })
 
   const handleNotificationSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    if (emailNotification) {
-      alert('Thank you! We\'ll notify you about new project launches and exclusive offers.');
-      setEmailNotification('');
-    }
+    setIsSubscribing(true);
+    setSubscribeMessage('');
+    
+    contactService.subscribeNewsletter(emailNotification)
+      .then(() => {
+        setSubscribeMessage('Thank you! We\'ll notify you about new project launches and exclusive offers.');
+        setEmailNotification('');
+      })
+      .catch((error) => {
+        console.error('Error subscribing:', error);
+        setSubscribeMessage('Sorry, there was an error. Please try again.');
+      })
+      .finally(() => {
+        setIsSubscribing(false);
+      });
   };
 
   const getStatusColor = (type: string) => {
@@ -110,6 +124,16 @@ const NewUpcomingProjects: React.FC<NewUpcomingProjectsProps> = ({ onNavigate })
             <p className="text-gray-600">Get notified about new project launches and exclusive early bird offers</p>
           </div>
           
+          {subscribeMessage && (
+            <div className={`mb-4 p-3 rounded text-center ${
+              subscribeMessage.includes('error') || subscribeMessage.includes('Sorry') 
+                ? 'bg-red-100 border border-red-400 text-red-700'
+                : 'bg-green-100 border border-green-400 text-green-700'
+            }`}>
+              {subscribeMessage}
+            </div>
+          )}
+          
           <form onSubmit={handleNotificationSignup} className="max-w-md mx-auto">
             <div className="flex gap-4">
               <input
@@ -122,9 +146,10 @@ const NewUpcomingProjects: React.FC<NewUpcomingProjectsProps> = ({ onNavigate })
               />
               <button
                 type="submit"
-                className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-lg font-semibold transition-all"
+                disabled={isSubscribing}
+                className="bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white px-6 py-3 rounded-lg font-semibold transition-all"
               >
-                Subscribe
+                {isSubscribing ? 'Subscribing...' : 'Subscribe'}
               </button>
             </div>
           </form>
