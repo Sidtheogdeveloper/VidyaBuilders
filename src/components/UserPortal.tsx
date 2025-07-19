@@ -17,23 +17,29 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
   const [signupData, setSignupData] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
   const [authLoading, setAuthLoading] = useState(false);
 
+  // Debug logging
+  console.log('UserPortal: Render state', { user: !!user, loading, error, authLoading });
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('UserPortal: Handling login');
     setAuthLoading(true);
     signIn(loginData.email, loginData.password)
       .then(() => {
+        console.log('UserPortal: Login successful');
         setLoginData({ email: '', password: '' });
       })
       .catch((err) => {
-        console.error('Login failed:', err);
+        console.error('UserPortal: Login failed:', err);
       })
       .finally(() => {
+        console.log('UserPortal: Login process finished');
         setAuthLoading(false);
       });
   };
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('UserPortal: Handling signup');
     if (signupData.password !== signupData.confirmPassword) {
       alert('Passwords do not match');
       return;
@@ -42,12 +48,14 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
     setAuthLoading(true);
     signUp(signupData.email, signupData.password, signupData.name, signupData.phone)
       .then(() => {
+        console.log('UserPortal: Signup successful');
         setSignupData({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
       })
       .catch((err) => {
-        console.error('Signup failed:', err);
+        console.error('UserPortal: Signup failed:', err);
       })
       .finally(() => {
+        console.log('UserPortal: Signup process finished');
         setAuthLoading(false);
       });
   };
