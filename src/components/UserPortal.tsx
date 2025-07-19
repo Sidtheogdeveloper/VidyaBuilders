@@ -414,46 +414,54 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
                 </button>
               </div>
               
-                {appointments.map((appointment) => (
-                  <div key={appointment.id} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center">
-                        <Calendar size={20} className="text-gray-400 mr-3" />
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {new Date(appointment.date).toLocaleDateString()} at {appointment.time}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            {appointment.type === 'video' ? 'Video Call' : 'Office Visit'}
+              {appointments.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No appointments scheduled yet.</p>
+                  <p className="text-sm text-gray-400 mt-2">Book your first appointment to get started!</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {appointments.map((appointment) => (
+                    <div key={appointment.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center">
+                          <Calendar size={20} className="text-gray-400 mr-3" />
+                          <div>
+                            <div className="font-medium text-gray-900">
+                              {new Date(appointment.date).toLocaleDateString()} at {appointment.time}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {appointment.type === 'video' ? 'Video Call' : 'Office Visit'}
+                            </div>
                           </div>
                         </div>
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          appointment.status === 'scheduled' 
+                            ? 'bg-blue-100 text-blue-800'
+                            : appointment.status === 'completed'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+                        </span>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        appointment.status === 'scheduled' 
-                          ? 'bg-blue-100 text-blue-800'
-                          : appointment.status === 'completed'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
-                      </span>
+                      {appointment.status === 'scheduled' && (
+                        <div className="flex space-x-2 mt-3">
+                          <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                            Reschedule
+                          </button>
+                          <button 
+                            onClick={() => handleCancelAppointment(appointment.id)}
+                            className="text-red-600 hover:text-red-700 text-sm font-medium"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    {appointment.status === 'scheduled' && (
-                      <div className="flex space-x-2 mt-3">
-                        <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                          Reschedule
-                        </button>
-                        <button 
-                          onClick={() => handleCancelAppointment(appointment.id)}
-                          className="text-red-600 hover:text-red-700 text-sm font-medium"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Recommended Projects */}
