@@ -52,7 +52,21 @@ export const authService = {
       if (userDoc.exists()) {
         return userDoc.data() as UserType;
       } else {
-        throw new Error('User data not found');
+        // Create user document if it doesn't exist
+        const userData: UserType = {
+          id: user.uid,
+          name: user.displayName || 'User',
+          email: user.email || email,
+          phone: '',
+          preferences: {
+            newsletter: true,
+            promotions: false,
+            projectUpdates: true
+          },
+          appointments: []
+        };
+        await setDoc(doc(db, 'users', user.uid), userData);
+        return userData;
       }
     } catch (error) {
       console.error('Error signing in:', error);
@@ -80,10 +94,35 @@ export const authService = {
       if (userDoc.exists()) {
         return userDoc.data() as UserType;
       }
-      return null;
+      
+      // If user document doesn't exist, create it
+      const userData: UserType = {
+        id: user.uid,
+        name: user.displayName || 'User',
+        email: user.email || '',
+        phone: '',
+        preferences: {
+          newsletter: true,
+          promotions: false,
+          projectUpdates: true
+        },
+        appointments: []
+      };
+      await setDoc(doc(db, 'users', user.uid), userData);
+      return userData;
     } catch (error) {
       console.error('Error getting user data:', error);
       return null;
+    }
+  },
+
+  // Create user document
+  async createUserDocument(userData: UserType): Promise<void> {
+    try {
+      await setDoc(doc(db, 'users', userData.id), userData);
+    } catch (error) {
+      console.error('Error creating user document:', error);
+      throw error;
     }
   },
 

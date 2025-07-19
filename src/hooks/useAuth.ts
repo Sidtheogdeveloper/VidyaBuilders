@@ -11,16 +11,38 @@ export const useAuth = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      setLoading(true);
       if (firebaseUser) {
         try {
+          setError(null);
           const userData = await authService.getCurrentUserData();
-          setUser(userData);
+          if (userData) {
+            setUser(userData);
+          } else {
+            // If user data doesn't exist in Firestore, create it
+            const newUserData: User = {
+              id: firebaseUser.uid,
+              name: firebaseUser.displayName || 'User',
+              email: firebaseUser.email || '',
+              phone: '',
+              preferences: {
+                newsletter: true,
+                promotions: false,
+                projectUpdates: true
+              },
+              appointments: []
+            };
+            await authService.createUserDocument(newUserData);
+            setUser(newUserData);
+          }
         } catch (err) {
           console.error('Error getting user data:', err);
-          setError('Failed to load user data');
+          setError('Failed to load user data. Please try refreshing the page.');
+          setUser(null);
         }
       } else {
         setUser(null);
+        setError(null);
       }
       setLoading(false);
     });
@@ -61,11 +83,14 @@ export const useAuth = () => {
   const signOut = async () => {
     try {
       setError(null);
+      setLoading(true);
       await authService.signOut();
       setUser(null);
     } catch (err: any) {
       setError(err.message);
       throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
