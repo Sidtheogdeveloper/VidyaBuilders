@@ -8,15 +8,22 @@ import Contact from './components/Contact';
 import UserPortal from './components/UserPortal';
 import CompletedProjects from './components/CompletedProjects';
 import NewUpcomingProjects from './components/NewUpcomingProjects';
+import BlogList from './components/BlogList';
+import BlogPost from './components/BlogPost';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
+  const [selectedBlogPostId, setSelectedBlogPostId] = useState<string>('');
 
   const handleNavigate = (page: string, projectId?: string) => {
     setCurrentPage(page);
     if (projectId) {
-      setSelectedProjectId(projectId);
+      if (page === 'project-detail') {
+        setSelectedProjectId(projectId);
+      } else if (page === 'blog-post') {
+        setSelectedBlogPostId(projectId);
+      }
     }
   };
 
@@ -34,6 +41,10 @@ function App() {
         return <NewUpcomingProjects onNavigate={handleNavigate} />;
       case 'about':
         return <About onNavigate={handleNavigate} />;
+      case 'blog':
+        return <BlogList onNavigate={handleNavigate} />;
+      case 'blog-post':
+        return <BlogPost postId={selectedBlogPostId} onNavigate={handleNavigate} />;
       case 'contact':
         return <Contact onNavigate={handleNavigate} />;
       case 'portal':

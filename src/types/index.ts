@@ -42,6 +42,7 @@ export interface User {
     projectUpdates: boolean;
   };
   appointments: Appointment[];
+  ownedUnits?: OwnedUnit[];
 }
 
 export interface Appointment {
@@ -66,4 +67,49 @@ export interface ContactForm {
   phone: string;
   message: string;
   projectInterest?: string;
+}
+
+export interface OwnedUnit {
+  id: string;
+  projectId: string;
+  projectName: string;
+  unitType: string;
+  unitNumber: string;
+  floorNumber: number;
+  purchaseDate: string;
+  expectedCompletion: string;
+  currentProgress: number;
+  milestones: ProjectMilestone[];
+}
+
+export interface ProjectMilestone {
+  id: string;
+  title: string;
+  description: string;
+  completedDate?: string;
+  isCompleted: boolean;
+  images?: string[];
+  order: number;
+}
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  publishDate: string;
+  category: 'news' | 'market-insights' | 'construction-updates' | 'company-news';
+  featuredImage: string;
+  tags: string[];
+  readTime: number;
+}
+
+export interface EMICalculation {
+  loanAmount: number;
+  interestRate: number;
+  tenure: number;
+  emi: number;
+  totalAmount: number;
+  totalInterest: number;
 }

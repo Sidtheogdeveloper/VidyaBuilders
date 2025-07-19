@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Home, Building, Users, Phone, User } from 'lucide-react';
+import { Menu, X, Home, Building, Users, Phone, User, FileText } from 'lucide-react';
 
 interface NavbarProps {
   currentPage: string;
@@ -12,6 +12,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'projects', label: 'Projects', icon: Building },
+    { id: 'blog', label: 'News & Insights', icon: FileText },
     { id: 'about', label: 'About Us', icon: Users },
     { id: 'contact', label: 'Contact', icon: Phone },
     { id: 'portal', label: 'User Portal', icon: User }

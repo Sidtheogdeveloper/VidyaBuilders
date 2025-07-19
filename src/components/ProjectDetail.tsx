@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, MapPin, Calendar, FileText, Download, Play, Image as ImageIcon, Phone, Mail, ExternalLink } from 'lucide-react';
 import { projects } from '../data/projects';
+import EMICalculator from './EMICalculator';
 
 interface ProjectDetailProps {
   projectId: string;
@@ -10,6 +11,7 @@ interface ProjectDetailProps {
 const ProjectDetail: React.FC<ProjectDetailProps> = ({ projectId, onNavigate }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [showGallery, setShowGallery] = useState(false);
+  const [showEMICalculator, setShowEMICalculator] = useState(false);
   
   const project = projects.find(p => p.id === projectId);
 
@@ -163,7 +165,10 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ projectId, onNavigate }) 
                 <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-semibold transition-all">
                   Get Brochure
                 </button>
-                <button className="w-full border-2 border-gray-300 text-gray-700 hover:border-amber-600 hover:text-amber-700 py-3 px-6 rounded-lg font-semibold transition-all">
+                <button 
+                  onClick={() => setShowEMICalculator(!showEMICalculator)}
+                  className="w-full border-2 border-gray-300 text-gray-700 hover:border-amber-600 hover:text-amber-700 py-3 px-6 rounded-lg font-semibold transition-all"
+                >
                   Check EMI Calculator
                 </button>
               </div>
@@ -176,6 +181,16 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ projectId, onNavigate }) 
           <h2 className="text-2xl font-bold text-gray-900 mb-4">About This Project</h2>
           <p className="text-gray-700 text-lg leading-relaxed">{project.description}</p>
         </div>
+
+        {/* EMI Calculator */}
+        {showEMICalculator && (
+          <div className="mb-8">
+            <EMICalculator 
+              defaultLoanAmount={parseInt(project.price?.replace(/[^\d]/g, '') || '5000000')}
+              onClose={() => setShowEMICalculator(false)}
+            />
+          </div>
+        )}
 
         {/* Unit Types */}
         <div className="bg-white rounded-xl p-8 mb-8 shadow-sm">

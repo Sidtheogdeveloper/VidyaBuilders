@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { User, Mail, Lock, Calendar, Bell, Settings, Eye, EyeOff, Phone, MapPin } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useAppointments } from '../hooks/useAppointments';
+import ProjectProgressTracker from './ProjectProgressTracker';
 
 interface UserPortalProps {
   onNavigate: (page: string) => void;
@@ -424,6 +425,12 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
 
           {/* Appointments and Activity */}
           <div className="lg:col-span-2">
+            {/* Project Progress Tracking */}
+            <div className="mb-8">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">My Project Progress</h2>
+              <ProjectProgressTracker userId={user.id} />
+            </div>
+
             {/* Appointments */}
             <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
               <div className="flex items-center justify-between mb-6">
