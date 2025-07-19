@@ -82,7 +82,7 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
         </div>
       </div>
     );
-  };
+  }
 
   if (!user) {
     return (
@@ -415,7 +415,6 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
               </div>
               
               <div className="space-y-4">
-                {user.appointments.map((appointment) => (
                 {appointments.map((appointment) => (
                   <div key={appointment.id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
