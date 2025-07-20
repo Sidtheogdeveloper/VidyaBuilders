@@ -10,7 +10,6 @@ import CompletedProjects from './components/CompletedProjects';
 import NewUpcomingProjects from './components/NewUpcomingProjects';
 import BlogList from './components/BlogList';
 import BlogPost from './components/BlogPost';
-import AdminDashboard from './components/AdminDashboard';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -50,8 +49,6 @@ function App() {
         return <Contact onNavigate={handleNavigate} />;
       case 'portal':
         return <UserPortal onNavigate={handleNavigate} />;
-      case 'admin':
-        return <AdminDashboard onNavigate={handleNavigate} />;
       default:
         return <Homepage onNavigate={handleNavigate} />;
     }

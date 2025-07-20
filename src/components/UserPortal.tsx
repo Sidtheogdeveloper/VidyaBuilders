@@ -18,35 +18,22 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
   const [signupData, setSignupData] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
   const [authLoading, setAuthLoading] = useState(false);
 
-  // Debug logging
-  console.log('UserPortal: Render state', { user: !!user, loading, error, authLoading });
-  console.log('UserPortal: User details', { 
-    id: user?.id, 
-    name: user?.name, 
-    email: user?.email, 
-    role: user?.role 
-  });
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('UserPortal: Handling login');
     setAuthLoading(true);
     signIn(loginData.email, loginData.password)
       .then(() => {
-        console.log('UserPortal: Login successful');
         setLoginData({ email: '', password: '' });
       })
       .catch((err) => {
-        console.error('UserPortal: Login failed:', err);
       })
       .finally(() => {
-        console.log('UserPortal: Login process finished');
         setAuthLoading(false);
       });
   };
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('UserPortal: Handling signup');
     if (signupData.password !== signupData.confirmPassword) {
       alert('Passwords do not match');
       return;
@@ -55,14 +42,11 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
     setAuthLoading(true);
     signUp(signupData.email, signupData.password, signupData.name, signupData.phone)
       .then(() => {
-        console.log('UserPortal: Signup successful');
         setSignupData({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
       })
       .catch((err) => {
-        console.error('UserPortal: Signup failed:', err);
       })
       .finally(() => {
-        console.log('UserPortal: Signup process finished');
         setAuthLoading(false);
       });
   };
@@ -363,38 +347,11 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
                 <div className="flex items-center">
                   <Settings size={20} className="text-gray-400 mr-3" />
                   <div>
-                    <div className="font-medium text-gray-900">Role: {user.role || 'user'}</div>
+                    <div className="font-medium text-gray-900">Account Type: Standard User</div>
                     <div className="text-sm text-gray-600">Account Type</div>
                   </div>
                 </div>
               </div>
-              
-              {/* Temporary Admin Button for Testing */}
-              {user.role !== 'admin' && (
-                <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <h3 className="text-sm font-medium text-yellow-800 mb-2">Developer Testing</h3>
-                  <p className="text-xs text-yellow-700 mb-3">
-                    This button is for testing purposes. In production, admin roles would be assigned manually in the database.
-                  </p>
-                  <button
-                    onClick={async () => {
-                      try {
-                        const { makeUserAdmin } = await import('../hooks/useAuth');
-                        // We need to call this through the auth service directly
-                        const { authService } = await import('../services/authService');
-                        await authService.updateUserProfile(user.id, { role: 'admin' });
-                        window.location.reload(); // Refresh to update the role
-                      } catch (error) {
-                        console.error('Error making user admin:', error);
-                        alert('Error updating role. Please try again.');
-                      }
-                    }}
-                    className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    Make Me Admin (Testing)
-                  </button>
-                </div>
-              )}
             </div>
 
             {/* Preferences */}
