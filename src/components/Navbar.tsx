@@ -11,6 +11,9 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isAdmin } = useAuth();
 
+  // Debug logging
+  console.log('Navbar: isAdmin:', isAdmin);
+
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'projects', label: 'Projects', icon: Building },
@@ -22,7 +25,10 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
 
   // Add admin item if user is admin
   if (isAdmin) {
+    console.log('Navbar: Adding admin item to navigation');
     navItems.push({ id: 'admin', label: 'Admin', icon: Shield });
+  } else {
+    console.log('Navbar: User is not admin, not adding admin item');
   }
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">

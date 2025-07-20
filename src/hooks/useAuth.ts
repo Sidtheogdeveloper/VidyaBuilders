@@ -128,7 +128,22 @@ export const useAuth = () => {
     }
   };
 
+  const makeUserAdmin = async () => {
+    if (!user) return;
+    
+    try {
+      setError(null);
+      await authService.updateUserProfile(user.id, { role: 'admin' });
+      setUser({ ...user, role: 'admin' });
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
   const isAdmin = user?.role === 'admin';
+  console.log('useAuth: Current user role:', user?.role, 'isAdmin:', isAdmin);
+  
   return {
     user,
     loading,
@@ -137,6 +152,7 @@ export const useAuth = () => {
     signUp,
     signIn,
     signOut,
-    updatePreferences
+    updatePreferences,
+    makeUserAdmin
   };
 };

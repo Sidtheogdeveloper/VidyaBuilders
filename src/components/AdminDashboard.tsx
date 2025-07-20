@@ -17,11 +17,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
   const [filterType, setFilterType] = useState<'all' | 'video' | 'office'>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Debug logging
+  console.log('AdminDashboard: Current user:', user);
+  console.log('AdminDashboard: isAdmin:', isAdmin);
+  console.log('AdminDashboard: User role:', user?.role);
+
   useEffect(() => {
+    console.log('AdminDashboard: useEffect triggered, isAdmin:', isAdmin);
     if (!isAdmin) {
+      console.log('AdminDashboard: Not admin, redirecting to home');
       onNavigate('home');
       return;
     }
+    console.log('AdminDashboard: User is admin, loading appointments');
     loadAppointments();
   }, [isAdmin, onNavigate]);
 
