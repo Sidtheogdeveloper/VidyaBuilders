@@ -334,7 +334,7 @@ const NewUpcomingProjects: React.FC<NewUpcomingProjectsProps> = ({ onNavigate })
               Schedule Consultation
             </button>
             <button className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-amber-700 px-8 py-3 rounded-lg font-semibold transition-all">
-              Call Now: +91 44 2345 6789
+              Call Now: +91 98765 43210
             </button>
           </div>
         </div>

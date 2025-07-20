@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Home, Building, Users, Phone, User, FileText, Shield } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
+import { Menu, X, Home, Building, Users, Phone, User, FileText } from 'lucide-react';
 
 interface NavbarProps {
   currentPage: string;

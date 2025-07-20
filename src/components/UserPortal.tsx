@@ -18,22 +18,29 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
   const [signupData, setSignupData] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
   const [authLoading, setAuthLoading] = useState(false);
 
+  // Debug logging
+  console.log('UserPortal: Render state', { user: !!user, loading, error, authLoading });
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('UserPortal: Handling login');
     setAuthLoading(true);
     signIn(loginData.email, loginData.password)
       .then(() => {
+        console.log('UserPortal: Login successful');
         setLoginData({ email: '', password: '' });
       })
       .catch((err) => {
+        console.error('UserPortal: Login failed:', err);
       })
       .finally(() => {
+        console.log('UserPortal: Login process finished');
         setAuthLoading(false);
       });
   };
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('UserPortal: Handling signup');
     if (signupData.password !== signupData.confirmPassword) {
       alert('Passwords do not match');
       return;
@@ -42,11 +49,14 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
     setAuthLoading(true);
     signUp(signupData.email, signupData.password, signupData.name, signupData.phone)
       .then(() => {
+        console.log('UserPortal: Signup successful');
         setSignupData({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
       })
       .catch((err) => {
+        console.error('UserPortal: Signup failed:', err);
       })
       .finally(() => {
+        console.log('UserPortal: Signup process finished');
         setAuthLoading(false);
       });
   };
@@ -65,20 +75,13 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
   };
 
   const handleCancelAppointment = (appointmentId: string) => {
-    cancelAppointment(appointmentId).catch((err) => {
-      console.error('Failed to cancel appointment:', err);
-      alert(err.message || 'Failed to cancel appointment');
-    });
+    if (window.confirm('Are you sure you want to cancel this appointment?')) {
+      cancelAppointment(appointmentId).catch((err) => {
+        console.error('Failed to cancel appointment:', err);
+      });
+    }
   };
 
-  const canCancelAppointment = (appointment: Appointment) => {
-    const appointmentDateTime = new Date(`${appointment.date} ${appointment.time}`);
-    const now = new Date();
-    const timeDifference = appointmentDateTime.getTime() - now.getTime();
-    const hoursDifference = timeDifference / (1000 * 3600);
-    
-    return hoursDifference >= 24;
-  };
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -343,14 +346,6 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
                     <div className="text-sm text-gray-600">Phone Number</div>
                   </div>
                 </div>
-                
-                <div className="flex items-center">
-                  <Settings size={20} className="text-gray-400 mr-3" />
-                  <div>
-                    <div className="font-medium text-gray-900">Account Type: Standard User</div>
-                    <div className="text-sm text-gray-600">Account Type</div>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -484,22 +479,12 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
                           <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
                             Reschedule
                           </button>
-                          {canCancelAppointment(appointment) ? (
-                            <button 
-                              onClick={() => {
-                                if (window.confirm('Are you sure you want to cancel this appointment?')) {
-                                  handleCancelAppointment(appointment.id);
-                                }
-                              }}
-                              className="text-red-600 hover:text-red-700 text-sm font-medium"
-                            >
-                              Cancel
-                            </button>
-                          ) : (
-                            <span className="text-gray-400 text-sm">
-                              Cannot cancel (within 24 hours)
-                            </span>
-                          )}
+                          <button 
+                            onClick={() => handleCancelAppointment(appointment.id)}
+                            className="text-red-600 hover:text-red-700 text-sm font-medium"
+                          >
+                            Cancel
+                          </button>
                         </div>
                       )}
                     </div>
