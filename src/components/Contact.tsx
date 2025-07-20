@@ -126,7 +126,7 @@ const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1">Phone</h3>
-                  <p className="text-gray-600">+91 98765 43210</p>
+                  <p className="text-gray-600">+91 44 2345 6789</p>
                   <p className="text-gray-600">+91 44 2345 6789</p>
                 </div>
               </div>
@@ -137,7 +137,7 @@ const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
-                  <p className="text-gray-600">info@vidyabuilders.com</p>
+                  <p className="text-gray-600">contact@vidyabuilders.com</p>
                   <p className="text-gray-600">sales@vidyabuilders.com</p>
                 </div>
               </div>

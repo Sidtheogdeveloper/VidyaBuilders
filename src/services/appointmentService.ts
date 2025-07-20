@@ -17,6 +17,20 @@ export const appointmentService = {
   // Create new appointment
   async createAppointment(appointment: Omit<Appointment, 'id'>): Promise<string> {
     try {
+      // Check if the time slot is already booked
+      const existingAppointmentQuery = query(
+        collection(db, 'appointments'),
+        where('date', '==', appointment.date),
+        where('time', '==', appointment.time),
+        where('status', '==', 'scheduled')
+      );
+      
+      const existingAppointments = await getDocs(existingAppointmentQuery);
+      
+      if (!existingAppointments.empty) {
+        throw new Error('This time slot is already booked. Please choose a different time.');
+      }
+
       const docRef = await addDoc(collection(db, 'appointments'), {
         ...appointment,
         createdAt: Timestamp.now(),
@@ -71,6 +85,28 @@ export const appointmentService = {
   // Cancel appointment
   async cancelAppointment(appointmentId: string): Promise<void> {
     try {
+      // Get appointment details first
+      const appointmentDoc = await getDocs(query(
+        collection(db, 'appointments'),
+        where('__name__', '==', appointmentId)
+      ));
+      
+      if (appointmentDoc.empty) {
+        throw new Error('Appointment not found');
+      }
+      
+      const appointmentData = appointmentDoc.docs[0].data() as Appointment;
+      
+      // Check if appointment is within 24 hours
+      const appointmentDateTime = new Date(`${appointmentData.date} ${appointmentData.time}`);
+      const now = new Date();
+      const timeDifference = appointmentDateTime.getTime() - now.getTime();
+      const hoursDifference = timeDifference / (1000 * 3600);
+      
+      if (hoursDifference < 24 && hoursDifference > 0) {
+        throw new Error('Cannot cancel appointment within 24 hours of scheduled time');
+      }
+
       await updateDoc(doc(db, 'appointments', appointmentId), {
         status: 'cancelled',
         updatedAt: Timestamp.now()

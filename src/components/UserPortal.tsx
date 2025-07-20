@@ -75,13 +75,20 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
   };
 
   const handleCancelAppointment = (appointmentId: string) => {
-    if (window.confirm('Are you sure you want to cancel this appointment?')) {
-      cancelAppointment(appointmentId).catch((err) => {
-        console.error('Failed to cancel appointment:', err);
-      });
-    }
+    cancelAppointment(appointmentId).catch((err) => {
+      console.error('Failed to cancel appointment:', err);
+      alert(err.message || 'Failed to cancel appointment');
+    });
   };
 
+  const canCancelAppointment = (appointment: Appointment) => {
+    const appointmentDateTime = new Date(`${appointment.date} ${appointment.time}`);
+    const now = new Date();
+    const timeDifference = appointmentDateTime.getTime() - now.getTime();
+    const hoursDifference = timeDifference / (1000 * 3600);
+    
+    return hoursDifference >= 24;
+  };
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -479,12 +486,22 @@ const UserPortal: React.FC<UserPortalProps> = ({ onNavigate }) => {
                           <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
                             Reschedule
                           </button>
-                          <button 
-                            onClick={() => handleCancelAppointment(appointment.id)}
-                            className="text-red-600 hover:text-red-700 text-sm font-medium"
-                          >
-                            Cancel
-                          </button>
+                          {canCancelAppointment(appointment) ? (
+                            <button 
+                              onClick={() => {
+                                if (window.confirm('Are you sure you want to cancel this appointment?')) {
+                                  handleCancelAppointment(appointment.id);
+                                }
+                              }}
+                              className="text-red-600 hover:text-red-700 text-sm font-medium"
+                            >
+                              Cancel
+                            </button>
+                          ) : (
+                            <span className="text-gray-400 text-sm">
+                              Cannot cancel (within 24 hours)
+                            </span>
+                          )}
                         </div>
                       )}
                     </div>

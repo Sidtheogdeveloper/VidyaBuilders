@@ -10,6 +10,7 @@ import CompletedProjects from './components/CompletedProjects';
 import NewUpcomingProjects from './components/NewUpcomingProjects';
 import BlogList from './components/BlogList';
 import BlogPost from './components/BlogPost';
+import AdminDashboard from './components/AdminDashboard';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -49,6 +50,8 @@ function App() {
         return <Contact onNavigate={handleNavigate} />;
       case 'portal':
         return <UserPortal onNavigate={handleNavigate} />;
+      case 'admin':
+        return <AdminDashboard onNavigate={handleNavigate} />;
       default:
         return <Homepage onNavigate={handleNavigate} />;
     }
@@ -65,21 +68,21 @@ function App() {
       <div className="fixed bottom-0 right-0 z-40 p-4">
         <div className="flex flex-col space-y-2">
           <a
-            href="tel:+919876543210"
+            href="tel:+914423456789"
             className="bg-green-600 hover:bg-green-700 text-white p-3 rounded-full shadow-lg transition-all transform hover:scale-105"
             title="Call us"
           >
             📞
           </a>
           <a
-            href="https://wa.me/919876543210"
+            href="https://wa.me/914423456789"
             className="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all transform hover:scale-105"
             title="WhatsApp"
           >
             💬
           </a>
           <a
-            href="mailto:info@vidyabuilders.com"
+            href="mailto:contact@vidyabuilders.com"
             className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all transform hover:scale-105"
             title="Email us"
           >

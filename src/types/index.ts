@@ -36,6 +36,7 @@ export interface User {
   name: string;
   email: string;
   phone?: string;
+  role: 'user' | 'admin';
   preferences: {
     newsletter: boolean;
     promotions: boolean;

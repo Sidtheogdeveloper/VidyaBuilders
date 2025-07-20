@@ -128,10 +128,12 @@ export const useAuth = () => {
     }
   };
 
+  const isAdmin = user?.role === 'admin';
   return {
     user,
     loading,
     error,
+    isAdmin,
     signUp,
     signIn,
     signOut,

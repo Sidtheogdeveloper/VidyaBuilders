@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Menu, X, Home, Building, Users, Phone, User, FileText } from 'lucide-react';
+import { Menu, X, Home, Building, Users, Phone, User, FileText, Shield } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 interface NavbarProps {
   currentPage: string;
@@ -8,6 +9,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAdmin } = useAuth();
 
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
@@ -18,6 +20,10 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
     { id: 'portal', label: 'User Portal', icon: User }
   ];
 
+  // Add admin item if user is admin
+  if (isAdmin) {
+    navItems.push({ id: 'admin', label: 'Admin', icon: Shield });
+  }
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

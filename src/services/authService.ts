@@ -28,6 +28,7 @@ export const authService = {
         name,
         email,
         phone: phone || '',
+        role: 'user', // Default role for new users
         preferences: {
           newsletter: true,
           promotions: false,
@@ -68,6 +69,7 @@ export const authService = {
           name: user.displayName || 'User',
           email: user.email || email,
           phone: '',
+          role: 'user', // Default role
           preferences: {
             newsletter: true,
             promotions: false,
@@ -119,6 +121,7 @@ export const authService = {
         name: user.displayName || 'User',
         email: user.email || '',
         phone: '',
+        role: 'user', // Default role
         preferences: {
           newsletter: true,
           promotions: false,
